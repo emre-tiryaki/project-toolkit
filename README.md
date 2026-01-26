@@ -31,27 +31,28 @@ Before using this tool, ensure you have the following installed on your system:
 
 ## Installation
 
-To install `fast-project-setup` on your machine, follow these steps:
+To install this project on your machine, follow these steps:
 
 1.  **Clone the repository:**
     Download the script to a location of your choice (e.g., your home directory or a hidden folder).
 
     ```bash
-    git clone [https://github.com/emre-tiryaki/fast-project-setup.git](https://github.com/emre-tiryaki/fast-project-setup.git) ~/.fast-project-setup
+    git clone https://github.com/emre-tiryaki/project-toolkit.git ~/.project-toolkit
     ```
 
 2.  **Configure your Shell:**
     Add the script to your shell configuration file (`.bashrc` or `.zshrc`).
+    Execute these scripts in your shell.
 
     For **Zsh** users:
     ```bash
-    echo "source ~/.fast-project-setup/project-manager.sh" >> ~/.zshrc
+    echo "source ~/.project-toolkit/project-toolkit.sh" >> ~/.zshrc
     source ~/.zshrc
     ```
 
     For **Bash** users:
     ```bash
-    echo "source ~/.fast-project-setup/project-manager.sh" >> ~/.bashrc
+    echo "source ~/.project-toolkit/project-toolkit.sh" >> ~/.bashrc
     source ~/.bashrc
     ```
 
@@ -97,8 +98,4 @@ The following features are planned for future releases to enhance the capabiliti
 
 This project is open-source and available under the MIT License. You are free to copy, modify, and distribute the code for personal or commercial use.
 
-See the [LICENSE](https://www.google.com/search?q=LICENSE) file for more details.
-
-```
-
-```
+See the [MIT License](https://opensource.org/licenses/MIT) for more details.
