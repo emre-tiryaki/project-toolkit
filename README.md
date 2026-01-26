@@ -37,7 +37,7 @@ To install `fast-project-setup` on your machine, follow these steps:
     Download the script to a location of your choice (e.g., your home directory or a hidden folder).
 
     ```bash
-    git clone [https://github.com/YOUR_USERNAME/fast-project-setup.git](https://github.com/YOUR_USERNAME/fast-project-setup.git) ~/.fast-project-setup
+    git clone [https://github.com/emre-tiryaki/fast-project-setup.git](https://github.com/emre-tiryaki/fast-project-setup.git) ~/.fast-project-setup
     ```
 
 2.  **Configure your Shell:**
@@ -71,7 +71,6 @@ project new my-awesome-project
 1. The script checks if `~/workspace/my-awesome-project` exists.
 2. It creates the directory if it does not exist.
 3. It navigates into the directory.
-4. It creates a Python virtual environment (`.venv`).
 5. It opens the folder in Visual Studio Code.
 
 ## Configuration
