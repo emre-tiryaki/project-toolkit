@@ -87,7 +87,7 @@ local workspace_path="$HOME/your-custom-folder"
 
 The following features are planned for future releases to enhance the capabilities of this tool:
 
-* [ ] **Delete Command:** Implementation of `project rm <name>` to safely remove project directories.
+* [X] **Delete Command:** Implementation of `project rm <name>` to safely remove project directories.
 * [ ] **List Command:** Implementation of `project list` to view all active projects in the workspace.
 * [ ] **Git Initialization:** Option to automatically run `git init` upon project creation.
 * [ ] **Language Templates:** Automatically create language specific templates.
