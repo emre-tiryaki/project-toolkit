@@ -57,6 +57,14 @@ project() {
     #listing projects
     elif [[ "$command" == "list" ]]; then
         ls $workspace_path
+    #Help command
+    elif [[ "$command" == "help" ]] || [[ -z "$command" ]]; then
+        echo "Project Toolkit - Available Commands:"
+        echo ""
+        echo "  project help          Show this help message"
+        echo "  project list          List all projects"
+        echo "  project new <name>    Create a new project"
+        echo "  project rm <name>     Remove an existing project"
     else
         echo "Error: Invalid command"
     fi

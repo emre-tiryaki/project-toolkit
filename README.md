@@ -8,6 +8,7 @@ This tool is designed for developers who value efficiency and clean workspace ma
 
 ## Features
 
+- **Displaying Available Commands:** Lists all the commands available.
 - **Listing Projects:** Lists all the projects in the workspace directory.
 - **Automated Directory Management:** Creates a project directory within your defined workspace path(default = `$HOME/workspace`).
 - **Automatic Project Removal:** Removes the project directory.
