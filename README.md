@@ -93,9 +93,14 @@ The following features are planned for future releases to enhance the capabiliti
 * [X] **Delete Command:** Implementation of `project rm <name>` to safely remove project directories.
 * [X] **List Command:** Implementation of `project list` to view all active projects in the workspace.
 * [X] **Git Initialization:** Option to automatically run `git init` upon project creation.
+* [X] **Open existing project:** Option to open the project with vscode
+* [ ] **Renaming existing projects:** Option to rename old projects
+* [ ] **Getting Project Info:** For getting the additional info of an existing project.
 * [ ] **Language Templates:** Automatically create language specific templates.
 * [ ] **Archive Functionality:** Ability to compress and archive old projects to save space.
 * [ ] **Language Specific Environment Setup:** Automatically initializes language specific enviroment.
+* [ ] **Project Stats:** Total project count, disk usage etc.
+* [ ] **Fuzzy Search:** Get the projects with similar name
 
 ## License
 

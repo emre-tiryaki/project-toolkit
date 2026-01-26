@@ -39,7 +39,6 @@ project() {
         fi 
         
         code .
-
     #Project removal
     elif [[ "$command" == "rm" ]]; then
         if [[ -z "$name" ]]; then
@@ -64,7 +63,15 @@ project() {
     #listing projects
     elif [[ "$command" == "list" ]]; then
         ls $workspace_path
-    #Help command
+    #Opening project
+    elif [[ "$command" == "open" ]]; then
+        target="$workspace_path/$name"
+        if _check_dir "$target"; then
+            code $target
+        else
+            echo "Error: Project does not exist"
+        fi
+    #Help
     elif [[ "$command" == "help" ]] || [[ -z "$command" ]]; then
         echo "Project Toolkit - Available Commands:"
         echo ""
@@ -72,6 +79,7 @@ project() {
         echo "  project list          List all projects"
         echo "  project new <name>    Create a new project"
         echo "  project rm <name>     Remove an existing project"
+        echo "  project open <name>   Open an existing project"
     else
         echo "Error: Invalid command"
     fi
