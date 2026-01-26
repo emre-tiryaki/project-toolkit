@@ -39,6 +39,8 @@ project() {
         fi 
         
         code .
+
+
     #Project removal
     elif [[ "$command" == "rm" ]]; then
         if [[ -z "$name" ]]; then
@@ -60,9 +62,13 @@ project() {
             echo "Error: There is no project to remove!"
             return 1
         fi
+
+
     #listing projects
     elif [[ "$command" == "list" ]]; then
         ls $workspace_path
+
+
     #Opening project
     elif [[ "$command" == "open" ]]; then
         target="$workspace_path/$name"
@@ -70,11 +76,16 @@ project() {
             code $target
         else
             echo "Error: Project does not exist"
+            return 1
         fi
+
+
     #Fuzzy searching projects
     elif [[ "$command" == "find" ]]; then
         local search_term=$2
         find "$workspace_path" -maxdepth 1 -type d -iname "*$search_term*" -printf "%f\n" | column
+
+
     #Help
     elif [[ "$command" == "help" ]] || [[ -z "$command" ]]; then
         echo "Project Toolkit - Available Commands:"
