@@ -54,6 +54,9 @@ project() {
             echo "Error: There is no project to remove!"
             return 1
         fi
+    #listing projects
+    elif [[ "$command" == "list" ]]; then
+        ls $workspace_path
     else
         echo "Error: Invalid command"
     fi

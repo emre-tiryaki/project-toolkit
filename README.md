@@ -8,6 +8,7 @@ This tool is designed for developers who value efficiency and clean workspace ma
 
 ## Features
 
+- **Listing Projects:** Lists all the projects in the workspace directory.
 - **Automated Directory Management:** Creates a project directory within your defined workspace path(default = `$HOME/workspace`).
 - **Automatic Project Removal:** Removes the project directory.
 - **IDE Integration:** Opens the newly created project directly in Visual Studio Code.
@@ -89,11 +90,11 @@ local workspace_path="$HOME/your-custom-folder"
 The following features are planned for future releases to enhance the capabilities of this tool:
 
 * [X] **Delete Command:** Implementation of `project rm <name>` to safely remove project directories.
-* [ ] **List Command:** Implementation of `project list` to view all active projects in the workspace.
+* [X] **List Command:** Implementation of `project list` to view all active projects in the workspace.
 * [ ] **Git Initialization:** Option to automatically run `git init` upon project creation.
 * [ ] **Language Templates:** Automatically create language specific templates.
 * [ ] **Archive Functionality:** Ability to compress and archive old projects to save space.
-* [ ] **Language Specific Environment Setup:** Automatically initializes a Python virtual environment (`.venv`) using the standard `venv` module.
+* [ ] **Language Specific Environment Setup:** Automatically initializes language specific enviroment.
 
 ## License
 
