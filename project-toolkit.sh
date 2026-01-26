@@ -12,9 +12,6 @@ project() {
         local target="$workspace_path/$name"
         mkdir -p "$target"
         cd "$target" || return
-
-        # Optional: Setup Python Virtual Environment
-        python3 -m venv .venv
         
         # Open in VS Code
         code .
