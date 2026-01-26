@@ -9,6 +9,7 @@ This tool is designed for developers who value efficiency and clean workspace ma
 ## Features
 
 - **Automated Directory Management:** Creates a project directory within your defined workspace path(default = `$HOME/workspace`).
+- **Automatic Project Removal:** Removes the project directory.
 - **IDE Integration:** Opens the newly created project directly in Visual Studio Code.
 - **Error Handling:** Includes checks for missing arguments and existing directories to prevent overwrites or errors.
 - **Cross-Shell Compatibility:** Works seamlessly with both Bash and Zsh.
