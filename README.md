@@ -101,6 +101,7 @@ The following features are planned for future releases to enhance the capabiliti
 * [ ] **Language Specific Environment Setup:** Automatically initializes language specific enviroment.
 * [ ] **Project Stats:** Total project count, disk usage etc.
 * [X] **Fuzzy Search:** Get the projects with similar name
+* [ ] **Language Specific Messages:** Getting the error messages in your systems language.
 
 ## License
 
