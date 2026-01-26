@@ -22,10 +22,12 @@ _get_msg() {
                 "err_name_missing") echo "Hata: Proje ismi eksik. Kullanım: project $cmd_type <isim>" ;;
                 "err_exists")       echo "Hata: '$param' isimli bir proje zaten mevcut!" ;;
                 "err_not_exists")   echo "Hata: '$param' isimli bir proje bulunamadı!" ;;
+                "err_invalid_param") echo "Hata: 'Geçersiz parametre: $param" ;;
                 "confirm_init_git") printf "Git repository'si oluşturmak ister misiniz? (y/n): " ;;
                 "confirm_rm")       printf "'$param' projesini silmek istediğinize emin misiniz? (y/n): " ;;
                 "success_rm")       echo "'$param' projesi başarıyla silindi." ;;
                 "success_new")      echo "'$param' projesi başarıyla oluşturuldu." ;;
+                "success_rename")   echo "Proje ismi başarıyla değiştirildi." ;;
                 *)                  echo "Bilinmeyen mesaj anahtarı: $key" ;;
             esac
             ;;
@@ -34,10 +36,12 @@ _get_msg() {
                 "err_name_missing") echo "Error: Project name is missing. Usage: project $cmd_type <name>" ;;
                 "err_exists")       echo "Error: Project '$param' already exists!" ;;
                 "err_not_exists")   echo "Error: Project '$param' not found!" ;;
+                "err_invalid_param") echo "Error: 'Invalid parameter: $param" ;;
                 "confirm_init_git") printf "Do you want to initialize a git repository? (y/n): " ;;
                 "confirm_rm")       printf "Are you sure you want to remove the project '$param'? (y/n): " ;;
                 "success_rm")       echo "Project '$param' successfully removed." ;;
                 "success_new")      echo "Project '$param' created successfully." ;;
+                "success_rename")   echo "Project name successfully changed." ;;
                 *)                  echo "Unknown message key: $key" ;;
             esac
             ;;
@@ -125,17 +129,47 @@ project() {
         find "$workspace_path" -maxdepth 1 -type d -iname "*$search_term*" -printf "%f\n" | column
 
 
+    #Renaming projects
+    elif [[ "$command" == "rename" ]]; then
+        local old_name=$2
+        local new_name=$3
+        
+        if [[ -z "$old_name" ]] || [[ -z "$new_name" ]]; then
+            _get_msg "err_name_missing" "rename"
+            return 1
+        fi
+        
+        if _check_dir "$workspace_path/$old_name"; then
+            if _check_dir "$workspace_path/$new_name"; then
+                _get_msg "err_exists" "$new_name"
+                return 1
+            fi
+
+            if [[ "$new_name" =~ [/\\:\*\?\"\'\\[\\]] ]]; then
+                _get_msg "err_invalid_param" "$new_name"
+                return 1
+            fi
+
+            mv "$workspace_path/$old_name" "$workspace_path/$new_name"
+
+            _get_msg "success_rename"
+        else
+            _get_msg "err_not_exists" "$old_name"
+            return 1
+        fi
+
     #Help
     #TODO: This section will be language specific in the future
     elif [[ "$command" == "help" ]] || [[ -z "$command" ]]; then
         echo "Project Toolkit - Available Commands:"
         echo ""
-        echo "  project help          Show this help message"
-        echo "  project list          List all projects"
-        echo "  project new <name>    Create a new project"
-        echo "  project rm <name>     Remove an existing project"
-        echo "  project open <name>   Open an existing project"
-        echo "  project find <name>   List all projects with similar name"
+        echo "  project help                            Show this help message"
+        echo "  project list                            List all projects"
+        echo "  project new <name>                      Create a new project"
+        echo "  project rm <name>                       Remove an existing project"
+        echo "  project open <name>                     Open an existing project"
+        echo "  project find <name>                     List all projects with similar name"
+        echo "  project rename <old_name> <new_name>    rename projects"
     else
         echo "Error: Invalid command"
     fi
