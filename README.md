@@ -92,7 +92,7 @@ The following features are planned for future releases to enhance the capabiliti
 
 * [X] **Delete Command:** Implementation of `project rm <name>` to safely remove project directories.
 * [X] **List Command:** Implementation of `project list` to view all active projects in the workspace.
-* [ ] **Git Initialization:** Option to automatically run `git init` upon project creation.
+* [X] **Git Initialization:** Option to automatically run `git init` upon project creation.
 * [ ] **Language Templates:** Automatically create language specific templates.
 * [ ] **Archive Functionality:** Ability to compress and archive old projects to save space.
 * [ ] **Language Specific Environment Setup:** Automatically initializes language specific enviroment.

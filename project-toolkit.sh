@@ -28,8 +28,15 @@ project() {
             return 1
         fi
 
+        echo -n "Do you want to initialize a git repository for the project? (y/n): "
+        read init_git
+        
         mkdir -p "$target"
         cd "$target" || return
+        
+        if [[ "$init_git" == "y"  || "$init_git" == "Y" ]]; then
+            git init
+        fi 
         
         code .
 
