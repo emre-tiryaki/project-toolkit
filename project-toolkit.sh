@@ -105,7 +105,7 @@ project() {
 
     #listing projects
     elif [[ "$command" == "list" ]]; then
-        ls $workspace_path
+        ls -t $workspace_path | column
 
 
     #Opening project
