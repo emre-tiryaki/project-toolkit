@@ -9,6 +9,41 @@ _check_dir(){
     fi
 }
 
+# For getting language specific messages
+_get_msg() {
+    local key=$1
+    local param=$2
+    local cmd_type=$3 # Opsiyonel: 'new' veya 'rm' gibi bağlamları taşımak için
+    local lang="${LANG:0:2}"
+
+    case "$lang" in
+        tr)
+            case "$key" in
+                "err_name_missing") echo "Hata: Proje ismi eksik. Kullanım: project $cmd_type <isim>" ;;
+                "err_exists")       echo "Hata: '$param' isimli bir proje zaten mevcut!" ;;
+                "err_not_exists")   echo "Hata: '$param' isimli bir proje bulunamadı!" ;;
+                "confirm_init_git") printf "Git repository'si oluşturmak ister misiniz? (y/n): " ;;
+                "confirm_rm")       printf "'$param' projesini silmek istediğinize emin misiniz? (y/n): " ;;
+                "success_rm")       echo "'$param' projesi başarıyla silindi." ;;
+                "success_new")      echo "'$param' projesi başarıyla oluşturuldu." ;;
+                *)                  echo "Bilinmeyen mesaj anahtarı: $key" ;;
+            esac
+            ;;
+        *) # Default: English
+            case "$key" in
+                "err_name_missing") echo "Error: Project name is missing. Usage: project $cmd_type <name>" ;;
+                "err_exists")       echo "Error: Project '$param' already exists!" ;;
+                "err_not_exists")   echo "Error: Project '$param' not found!" ;;
+                "confirm_init_git") printf "Do you want to initialize a git repository? (y/n): " ;;
+                "confirm_rm")       printf "Are you sure you want to remove the project '$param'? (y/n): " ;;
+                "success_rm")       echo "Project '$param' successfully removed." ;;
+                "success_new")      echo "Project '$param' created successfully." ;;
+                *)                  echo "Unknown message key: $key" ;;
+            esac
+            ;;
+    esac
+}
+
 project() {
     local command=$1
     local name=$2
@@ -17,18 +52,18 @@ project() {
     #Project creation
     if [[ "$command" == "new" ]]; then
         if [[ -z "$name" ]]; then
-            echo "Error: Project name is missing. Usage: project new <name>"
+            _get_msg "err_name_missing" "$command"
             return 1
         fi
 
         local target="$workspace_path/$name"
 
         if _check_dir "$target"; then
-            echo "Error: Project with that name already exists"
+            _get_msg "err_exists" "$name"
             return 1
         fi
 
-        echo -n "Do you want to initialize a git repository for the project? (y/n): "
+        _get_msg "confirm_init_git"
         read init_git
         
         mkdir -p "$target"
@@ -40,26 +75,30 @@ project() {
         
         code .
 
+        _get_msg "success_new" "$name"
+
 
     #Project removal
     elif [[ "$command" == "rm" ]]; then
         if [[ -z "$name" ]]; then
-            echo "Error: Project name is missing. Usage: project rm <name>"
+            _get_msg "err_name_missing" "$command"
             return 1
         fi
 
         local target="$workspace_path/$name"
         if _check_dir "$target"; then
-            echo -n "Are you sure to remove the project '$name'? (y/n): "
+            _get_msg "confirm_rm" "$name"
             read confirm
 
             if [[ "$confirm" == "y"  || "$confirm" == "Y" ]]; then
-                rm -r $target
+                rm -rf $target
             else
                 return 0
             fi
+
+            _get_msg "success_rm" "$name"
         else
-            echo "Error: There is no project to remove!"
+            _get_msg "err_not_exists" "$name"
             return 1
         fi
 
@@ -75,7 +114,7 @@ project() {
         if _check_dir "$target"; then
             code $target
         else
-            echo "Error: Project does not exist"
+            _get_msg "err_not_exists" "$name"
             return 1
         fi
 
@@ -87,6 +126,7 @@ project() {
 
 
     #Help
+    #TODO: This section will be language specific in the future
     elif [[ "$command" == "help" ]] || [[ -z "$command" ]]; then
         echo "Project Toolkit - Available Commands:"
         echo ""
