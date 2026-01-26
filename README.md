@@ -100,7 +100,7 @@ The following features are planned for future releases to enhance the capabiliti
 * [ ] **Archive Functionality:** Ability to compress and archive old projects to save space.
 * [ ] **Language Specific Environment Setup:** Automatically initializes language specific enviroment.
 * [ ] **Project Stats:** Total project count, disk usage etc.
-* [ ] **Fuzzy Search:** Get the projects with similar name
+* [X] **Fuzzy Search:** Get the projects with similar name
 
 ## License
 

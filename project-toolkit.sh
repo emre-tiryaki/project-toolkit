@@ -71,6 +71,10 @@ project() {
         else
             echo "Error: Project does not exist"
         fi
+    #Fuzzy searching projects
+    elif [[ "$command" == "find" ]]; then
+        local search_term=$2
+        find "$workspace_path" -maxdepth 1 -type d -iname "*$search_term*" -printf "%f\n" | column
     #Help
     elif [[ "$command" == "help" ]] || [[ -z "$command" ]]; then
         echo "Project Toolkit - Available Commands:"
@@ -80,6 +84,7 @@ project() {
         echo "  project new <name>    Create a new project"
         echo "  project rm <name>     Remove an existing project"
         echo "  project open <name>   Open an existing project"
+        echo "  project find <name>   List all projects with similar name"
     else
         echo "Error: Invalid command"
     fi
