@@ -1,3 +1,6 @@
+PROJECT_WORKSPACE="${PROJECT_WORKSPACE:-$HOME/workspace}"
+EDITOR="code"
+
 #for checking if a directory exists
 _check_dir(){
     local target_dir=$1
@@ -13,7 +16,7 @@ _check_dir(){
 _get_msg() {
     local key=$1
     local param=$2
-    local cmd_type=$3 # Opsiyonel: 'new' veya 'rm' gibi bağlamları taşımak için
+    local cmd_type=$3
     local lang="${LANG:0:2}"
 
     case "$lang" in
@@ -23,8 +26,9 @@ _get_msg() {
                 "err_exists")       echo "Hata: '$param' isimli bir proje zaten mevcut!" ;;
                 "err_not_exists")   echo "Hata: '$param' isimli bir proje bulunamadı!" ;;
                 "err_invalid_param") echo "Hata: 'Geçersiz parametre: $param" ;;
-                "confirm_init_git") printf "Git repository'si oluşturmak ister misiniz? (y/n): " ;;
+                "err_invalid_command") echo "Hata: Geçersiz komut: $cmd_type";;
                 "confirm_rm")       printf "'$param' projesini silmek istediğinize emin misiniz? (y/n): " ;;
+                "cancel_rm")        echo "$param projesi silinmedi";;
                 "success_rm")       echo "'$param' projesi başarıyla silindi." ;;
                 "success_new")      echo "'$param' projesi başarıyla oluşturuldu." ;;
                 "success_rename")   echo "Proje ismi başarıyla değiştirildi." ;;
@@ -37,8 +41,9 @@ _get_msg() {
                 "err_exists")       echo "Error: Project '$param' already exists!" ;;
                 "err_not_exists")   echo "Error: Project '$param' not found!" ;;
                 "err_invalid_param") echo "Error: 'Invalid parameter: $param" ;;
-                "confirm_init_git") printf "Do you want to initialize a git repository? (y/n): " ;;
+                "err_invalid_command") echo "Error: Invalid command: $cmd_type";;
                 "confirm_rm")       printf "Are you sure you want to remove the project '$param'? (y/n): " ;;
+                "cancel_rm")        echo "$param project did not removed";;
                 "success_rm")       echo "Project '$param' successfully removed." ;;
                 "success_new")      echo "Project '$param' created successfully." ;;
                 "success_rename")   echo "Project name successfully changed." ;;
@@ -48,67 +53,158 @@ _get_msg() {
     esac
 }
 
+#project creation command
+_cmd_new() {
+    local project_name=""
+    local init_git=false
+    local open_editor=false
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -g|--git)
+                init_git=true
+                shift
+            ;;
+            -e|--editor)
+                open_editor=true
+                shift
+            ;;
+            -*)
+                #error message
+                return 1
+            ;;
+            *)
+                project_name="$1"
+                shift
+            ;;
+        esac
+    done
+
+    if [[ -z "$project_name" ]]; then
+        _get_msg "err_name_missing" "" "new"
+        return 1
+    fi
+
+    target="$PROJECT_WORKSPACE/$project_name"
+
+    if _check_dir "$target"; then
+        _get_msg "err_exists" "$project_name"
+        return 1
+    fi
+
+    mkdir -p "$target"
+    cd "$target" || return
+
+    if [[ $init_git == true ]]; then
+        git init
+    fi
+
+    if [[ $open_editor == true ]]; then
+        "$EDITOR" .
+    fi
+
+    _get_msg "success_new" "$project_name"
+}
+
+#Remove Project Command
+_cmd_rm() {
+    local project_name=""
+    local force=false
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -f|--force)
+                force=true
+                shift
+            ;;
+            -*)
+                #error message
+                return 1
+            ;;
+            *)
+                project_name="$1"
+                shift
+            ;;
+        esac
+    done
+
+    if [[ -z "$project_name" ]]; then
+        _get_msg "err_name_missing" "" "rm"
+        return 1
+    fi
+
+    local target="$PROJECT_WORKSPACE/$project_name"
+
+    if _check_dir "$target"; then
+        
+        if [[ $force == false ]]; then
+            _get_msg "confirm_rm" "$project_name"
+            read confirm
+
+            if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
+                rm -rf "$target"
+            else
+                _get_msg "cancel_rm" "$project_name"
+                return 0
+            fi
+        else
+            rm -rf "$target"
+        fi
+
+        _get_msg "success_rm" "$project_name"
+    else
+        _get_msg "err_not_exists" "$project_name"
+        return 1
+    fi
+}
+
+#Help Command
+#TODO: This section will be language specific in the future
+_cmd_help() {
+    echo "Project Toolkit - Available Commands:"
+        echo ""
+        echo "  project help                            Show this help message"
+        echo "  project list                            List all projects"
+        echo "  project new <name>                      Create a new project"
+        echo "  project rm <name>                       Remove an existing project"
+        echo "  project open <name>                     Open an existing project"
+        echo "  project find <name>                     List all projects with similar name"
+        echo "  project rename <old_name> <new_name>    rename projects"
+}
+
 project() {
     local command=$1
     local name=$2
-    local workspace_path="$HOME/workspace"
+    local workspace_path="$PROJECT_WORKSPACE"
+    shift
 
-    #Project creation
-    if [[ "$command" == "new" ]]; then
-        if [[ -z "$name" ]]; then
-            _get_msg "err_name_missing" "$command"
+    case "$command" in
+        new)
+            _cmd_new "$@"
+        ;;
+        rm)
+            _cmd_rm "$@"
+        ;;
+        list)
+
+        ;;
+        find)
+
+        ;;
+        rename)
+
+        ;;
+        help)
+            _cmd_help
+        ;;
+        *)
+            _get_msg "err_invalid_command" "$command"
             return 1
-        fi
-
-        local target="$workspace_path/$name"
-
-        if _check_dir "$target"; then
-            _get_msg "err_exists" "$name"
-            return 1
-        fi
-
-        _get_msg "confirm_init_git"
-        read init_git
-        
-        mkdir -p "$target"
-        cd "$target" || return
-        
-        if [[ "$init_git" == "y"  || "$init_git" == "Y" ]]; then
-            git init
-        fi 
-        
-        code .
-
-        _get_msg "success_new" "$name"
-
-
-    #Project removal
-    elif [[ "$command" == "rm" ]]; then
-        if [[ -z "$name" ]]; then
-            _get_msg "err_name_missing" "$command"
-            return 1
-        fi
-
-        local target="$workspace_path/$name"
-        if _check_dir "$target"; then
-            _get_msg "confirm_rm" "$name"
-            read confirm
-
-            if [[ "$confirm" == "y"  || "$confirm" == "Y" ]]; then
-                rm -rf $target
-            else
-                return 0
-            fi
-
-            _get_msg "success_rm" "$name"
-        else
-            _get_msg "err_not_exists" "$name"
-            return 1
-        fi
-
+        ;;
+    esac
 
     #listing projects
-    elif [[ "$command" == "list" ]]; then
+    if [[ "$command" == "list" ]]; then
         ls -t $workspace_path | column
 
 
@@ -157,20 +253,8 @@ project() {
             _get_msg "err_not_exists" "$old_name"
             return 1
         fi
-
-    #Help
-    #TODO: This section will be language specific in the future
-    elif [[ "$command" == "help" ]] || [[ -z "$command" ]]; then
-        echo "Project Toolkit - Available Commands:"
-        echo ""
-        echo "  project help                            Show this help message"
-        echo "  project list                            List all projects"
-        echo "  project new <name>                      Create a new project"
-        echo "  project rm <name>                       Remove an existing project"
-        echo "  project open <name>                     Open an existing project"
-        echo "  project find <name>                     List all projects with similar name"
-        echo "  project rename <old_name> <new_name>    rename projects"
     else
-        echo "Error: Invalid command"
+        _get_msg "err_invalid_command" "$command"
+        return 1
     fi
 }
