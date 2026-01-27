@@ -163,6 +163,38 @@ _cmd_list() {
     ls -t $PROJECT_WORKSPACE | column
 }
 
+#open project command
+_cmd_open() {
+    local project_name=""
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -*)
+                #error message
+                return 1
+            ;;
+            *)
+                project_name="$1"
+                shift
+            ;;
+        esac
+    done
+
+    if [[ -z "$project_name" ]]; then
+        _get_msg "err_name_missing" "" "rm"
+        return 1
+    fi
+
+    local target="$PROJECT_WORKSPACE/$project_name"
+
+    if _check_dir "$target"; then
+        "$EDITOR" .
+    else
+        _get_msg "err_not_exists" "$project_name"
+        return 1
+    fi
+}
+
 #Help Command
 #TODO: This section will be language specific in the future
 _cmd_help() {
@@ -179,8 +211,6 @@ _cmd_help() {
 
 project() {
     local command=$1
-    local name=$2
-    local workspace_path="$PROJECT_WORKSPACE"
     shift
 
     case "$command" in
@@ -191,7 +221,10 @@ project() {
             _cmd_rm "$@"
         ;;
         list)
-            _cmd_list
+            _cmd_list 
+        ;;
+        open)
+            _cmd_open "$@"
         ;;
         find)
 
@@ -208,19 +241,8 @@ project() {
         ;;
     esac 
 
-    #Opening project
-    if [[ "$command" == "open" ]]; then
-        target="$workspace_path/$name"
-        if _check_dir "$target"; then
-            code $target
-        else
-            _get_msg "err_not_exists" "$name"
-            return 1
-        fi
-
-
     #Fuzzy searching projects
-    elif [[ "$command" == "find" ]]; then
+    if [[ "$command" == "find" ]]; then
         local search_term=$2
         find "$workspace_path" -maxdepth 1 -type d -iname "*$search_term*" -printf "%f\n" | column
 
