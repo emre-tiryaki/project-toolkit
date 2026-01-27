@@ -58,6 +58,9 @@ _get_msg() {
         ["err_invalid_param"]="Hata: Geçersiz parametre: $param"
         ["err_invalid_command"]="Hata: Geçersiz komut: $cmd_type"
         ["err_code_editor_not_found"]="Hata: '$param' editörü sistemde bulunamadı"
+        ["err_template_missing"]="Hata: Şablon tipi belirtilmedi. Kullanım: project new <isim> -t <tip>"
+        ["err_project_not_empty"]="Hata: Proje boş değil!"
+        ["err_program_not_exists"]="Hata: $param sistemde yüklü değil!"
         ["confirm_rm"]="'$param' projesini silmek istediğinize emin misiniz? (y/n): "
         ["cancel_rm"]="'$param' projesi silinmedi"
         ["success_rm"]="'$param' projesi başarıyla silindi."
@@ -74,6 +77,9 @@ _get_msg() {
         ["err_invalid_param"]="Error: Invalid parameter: $param"
         ["err_invalid_command"]="Error: Invalid command: $cmd_type"
         ["err_code_editor_not_found"]="Error: '$param' editor not found in the system"
+        ["err_template_missing"]="Error: Template type not specified. Usage: project new <name> -t <type>"
+        ["err_project_not_empty"]="Error: Project is not empty!"
+        ["err_program_not_exists"]="Error: $param is not installed on the system!"
         ["confirm_rm"]="Are you sure you want to remove the project '$param'? (y/n): "
         ["cancel_rm"]="Project '$param' was not removed"
         ["success_rm"]="Project '$param' successfully removed."
@@ -118,6 +124,49 @@ _open_editor(){
     esac
 }
 
+#for checking if a program/command exists in the system
+_check_program_existence(){
+    local program=$1
+    
+    command -v "$program" &> /dev/null
+}
+
+#for creating language specific templates
+#TODO: will implement writing boilerplate code in the future
+_create_template(){
+    local project_name=$1
+    local template_type=$2
+
+    if [ "$(ls)" ]; then
+        _get_msg "err_project_not_empty"
+        return 1
+    fi
+
+    case "$template_type" in
+        node|javascript|js)
+            template_type="npm"
+        ;;
+    esac
+
+    if ! _check_program_existence "$template_type"; then
+        _get_msg "err_program_not_exists" "$template_type"
+        return 1
+    fi
+
+    case "$template_type" in
+        go)
+            go mod init "$project_name"
+        ;;
+        npm)
+            npm init -y
+        ;;
+        *)
+            _get_msg "err_invalid_param" "$template_type"
+            return 1
+        ;;
+    esac
+}
+
 #COMMAND FUNCTIONS 
 
 #project creation command
@@ -125,6 +174,8 @@ _cmd_new() {
     local project_name=""
     local init_git=false
     local open_editor=false
+    local create_template=false
+    local template_type=""
 
     while [[ $# -gt 0 ]]; do
         case "$1" in
@@ -135,6 +186,11 @@ _cmd_new() {
             -e|--editor)
                 open_editor=true
                 shift
+            ;;
+            -t|--template)
+                create_template=true
+                template_type="$2"
+                shift 2
             ;;
             -*)
                 #error message
@@ -170,6 +226,15 @@ _cmd_new() {
     if [[ $init_git == true ]]; then
         git init --initial-branch=main
     fi
+
+    if [[ $create_template == true ]]; then
+        if [[ -z "$template_type" ]]; then
+            _get_msg "err_template_missing" "" "new"
+            return 1
+        fi
+
+        _create_template "$project_name" "$template_type"
+    fi  
 
     if [[ $open_editor == true ]]; then
         _open_editor
