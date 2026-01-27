@@ -1,112 +1,170 @@
-# project-toolkit
+# Project Toolkit
 
-A lightweight, automated project initialization tool designed for Linux environments. This shell script streamlines the process of creating a new development workspace, setting up a Python virtual environment, and launching Visual Studio Code in a single command.
+**Project Toolkit** is a lightweight, automated shell utility designed to streamline your development workflow on Linux. It simplifies creating, managing, navigating, and organizing your coding projects directly from the terminal.
 
-## Overview
-
-This tool is designed for developers who value efficiency and clean workspace management. Instead of manually creating directories, navigating into them, and opening your editor, `project-toolkit` handles the entire workflow instantly.
+Built for efficiency, it handles directory structures, Git initialization, and editor launching with simple, intuitive commands.
 
 ## Features
 
-- **Displaying Available Commands:** Lists all the commands available.
-- **Listing Projects:** Lists all the projects in the workspace directory.
-- **Automated Directory Management:** Creates a project directory within your defined workspace path(default = `$HOME/workspace`).
-- **Automatic Project Removal:** Removes the project directory.
-- **IDE Integration:** Opens the newly created project directly in Visual Studio Code.
-- **Error Handling:** Includes checks for missing arguments and existing directories to prevent overwrites or errors.
-- **Cross-Shell Compatibility:** Works seamlessly with both Bash and Zsh.
-
-## Supported Distributions
-
-This tool is compatible with any Linux distribution that runs Bash or Zsh. It has been verified on:
-
-- **Debian/Ubuntu-based:** KDE Neon, Ubuntu, Linux Mint, Pop!_OS, Kali Linux
-- **Arch-based:** Arch Linux, Manjaro, EndeavourOS
-- **Fedora/Red Hat:** Fedora Workstation, CentOS
-- **OpenSUSE**
-
-## Prerequisites
-
-Before using this tool, ensure you have the following installed on your system:
-
-1.  **Visual Studio Code:** The `code` command must be added to your PATH.
-2.  **Git:** Required to clone the repository.
+* **Smart Workspace Management:** Automatically manages a dedicated workspace directory (`~/workspace` by default).
+* **Intelligent Editor Detection:** Automatically detects your system's default editor (VS Code, Vim, Neovim, Nano, etc.) via `$VISUAL` or `$EDITOR` environment variables.
+* **Git Integration:** Initialize a new Git repository (`main` branch) instantly upon project creation.
+* **Safety First:** Includes confirmation prompts for deletion to prevent accidents, with a "force" mode for power users.
+* **Fuzzy Search:** Quickly find projects even if you don't remember the exact name.
+* **Cross-Shell Support:** Fully compatible with both **Bash** and **Zsh**.
+* **Bilingual Support:** Automatically adapts error messages and prompts based on your system language (English/Turkish).
 
 ## Installation
 
-To install this project on your machine, follow these steps:
+Since `project-toolkit` runs as a shell function to manage your current session (like changing directories), it must be `sourced` in your shell configuration.
 
-1.  **Clone the repository:**
-    Download the script to a location of your choice (e.g., your home directory or a hidden folder).
-
-    ```bash
-    git clone https://github.com/emre-tiryaki/project-toolkit.git ~/.project-toolkit
-    ```
-
-2.  **Configure your Shell:**
-    Add the script to your shell configuration file (`.bashrc` or `.zshrc`).
-    Execute these scripts in your shell.
-
-    For **Zsh** users:
-    ```bash
-    echo "source ~/.project-toolkit/project-toolkit.sh" >> ~/.zshrc
-    source ~/.zshrc
-    ```
-
-    For **Bash** users:
-    ```bash
-    echo "source ~/.project-toolkit/project-toolkit.sh" >> ~/.bashrc
-    source ~/.bashrc
-    ```
-
-## Usage
-
-Once installed, you can use the `project` command from any terminal window.
-
-### Creating a New Project
-
-To create a new project, use the `new` command followed by your desired project name:
+### 1. Clone the Repository
+Clone the tool to a location on your machine (e.g., your home directory):
 
 ```bash
-project new my-awesome-project
+git clone https://github.com/emre-tiryaki/project-toolkit.git ~/.project-toolkit
 
-**What happens next?**
+### 2. Configure Your Shell
+```
 
-1. The script checks if `~/workspace/my-awesome-project` exists.
-2. It creates the directory if it does not exist.
-3. It navigates into the directory.
-5. It opens the folder in Visual Studio Code.
+You need to load the script when your terminal starts. Add the source command to your configuration file.
 
-## Configuration
-
-By default, the script creates projects in the `$HOME/workspace` directory. To change this location, edit the `project-manager.sh` file and modify the `workspace_path` variable:
+#### For Bash Users
 
 ```bash
-local workspace_path="$HOME/your-custom-folder"
+Run the following commands:
+
+echo 'source "$HOME/.project-toolkit/project-toolkit.sh"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+#### For Zsh Users
+
+```bash
+Run the following commands:
+
+```bash
+echo 'source "$HOME/.project-toolkit/project-toolkit.sh"' >> ~/.zshrc
+source ~/.zshrc
 
 ```
 
+## Configuration (Optional)
+
+You can customize the behavior of Project Toolkit by setting environment variables in your `.bashrc` or `.zshrc` file **before** sourcing the script.
+
+* **Custom Workspace Location:**
+```bash
+export PROJECT_WORKSPACE="$HOME/Development/MyProjects"
+
+```
+
+
+* **Force Specific Editor:**
+```bash
+export VISUAL="code" # or "nvim", "subl", etc.
+
+```
+
+
+
+## Usage
+
+Once installed, use the `project` command to interact with the toolkit.
+
+### Create a New Project
+
+Creates a directory in your workspace.
+
+```bash
+project new <project-name>
+
+```
+
+**Options:**
+
+* `-g` or `--git`: Initialize a Git repository immediately.
+* `-e` or `--editor`: Open the project in your default editor immediately.
+
+**Example:**
+
+```bash
+project new my-app -g -e
+
+```
+
+### Open an Existing Project
+
+Navigates to the project directory and opens it in your configured editor.
+
+```bash
+project open <project-name>
+
+```
+
+### List Projects
+
+Displays all projects currently in your workspace, sorted by modification time.
+
+```bash
+project list
+
+```
+
+### Find a Project
+
+Search for a project by a partial name match.
+
+```bash
+project find <search-term>
+
+```
+
+### Rename a Project
+
+Safely renames a project directory.
+
+```bash
+project rename <old-name> <new-name>
+
+```
+
+### Remove a Project
+
+Deletes a project directory.
+
+```bash
+project rm <project-name>
+
+```
+
+**Options:**
+
+* `-f` or `--force`: Skip the confirmation prompt (Use with caution).
+
 ## Roadmap
 
-The following features are planned for future releases to enhance the capabilities of this tool:
+We are constantly working to improve Project Toolkit. Here are some features planned for future releases:
 
-* [X] **Delete Command:** Implementation of `project rm <name>` to safely remove project directories.
-* [X] **List Command:** Implementation of `project list` to view all active projects in the workspace.
-* [X] **Git Initialization:** Option to automatically run `git init` upon project creation.
-* [X] **Open existing project:** Option to open the project with vscode
-* [X] **Renaming existing projects:** Option to rename old projects
-* [ ] **Getting Project Info:** For getting the additional info of an existing project.
-* [ ] **Language Templates:** Automatically create language specific templates.
-* [ ] **Archive Functionality:** Ability to compress and archive old projects to save space.
-* [ ] **Language Specific Environment Setup:** Automatically initializes language specific enviroment.
-* [ ] **Project Stats:** Total project count, disk usage etc.
-* [X] **Fuzzy Search:** Get the projects with similar name.
-* [X] **Language Specific Messages:** Getting the error messages in your systems language.
-* [ ] **Update Project:** Automatically pulls the most recent version from github.
-* [ ] **Interactive Project Selection Menu:** Interactively selecting the project to open.
+* [ ] **Project Templates:** Automatically scaffold projects for specific languages (Python, Node.js, Go, etc.).
+* [ ] **Archive Mode:** Compress and archive old projects to save space without deleting them.
+* [ ] **Project Statistics:** View disk usage and file counts for your workspace.
+* [ ] **Self-Updater:** Easy command to pull the latest version of the toolkit.
+* [ ] **Interactive Selection:** A TUI menu to select projects from a list when opening.
+
+## Contributing
+
+Contributions are welcome! If you'd like to improve this tool, please follow these steps:
+
+1. **Fork the repository** on GitHub.
+2. **Clone your fork** locally.
+3. **Create a new branch** for your feature or bug fix (`git checkout -b feature/amazing-feature`).
+4. **Commit your changes** following clean coding practices.
+5. **Push to the branch** (`git push origin feature/amazing-feature`).
+6. **Open a Pull Request**.
+
+Please ensure your code is clean, commented, and compatible with both Bash and Zsh.
 
 ## License
 
-This project is open-source and available under the MIT License. You are free to copy, modify, and distribute the code for personal or commercial use.
-
-See the [MIT License](https://opensource.org/licenses/MIT) for more details.
+This project is open-source and available under the [MIT License](https://www.google.com/search?q=LICENSE).
