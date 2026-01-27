@@ -195,6 +195,26 @@ _cmd_open() {
     fi
 }
 
+#Searching project by name
+_cmd_find() {
+    local search_term=$2
+
+    while [[ $# -gt 0 ]]; do
+        case "$1" in
+            -*)
+                #error message
+                return 1
+            ;;
+            *)
+                search_term="$1"
+                shift
+            ;;
+        esac
+    done
+        
+    find "$PROJECT_WORKSPACE" -maxdepth 1 -type d -iname "*$search_term*" -printf "%f\n" | column
+}
+
 #Help Command
 #TODO: This section will be language specific in the future
 _cmd_help() {
@@ -227,7 +247,7 @@ project() {
             _cmd_open "$@"
         ;;
         find)
-
+            _cmd_find "$@"
         ;;
         rename)
 
