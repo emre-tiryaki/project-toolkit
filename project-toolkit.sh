@@ -158,6 +158,11 @@ _cmd_rm() {
     fi
 }
 
+#listing projects command
+_cmd_list() {
+    ls -t $PROJECT_WORKSPACE | column
+}
+
 #Help Command
 #TODO: This section will be language specific in the future
 _cmd_help() {
@@ -186,7 +191,7 @@ project() {
             _cmd_rm "$@"
         ;;
         list)
-
+            _cmd_list
         ;;
         find)
 
@@ -201,15 +206,10 @@ project() {
             _get_msg "err_invalid_command" "$command"
             return 1
         ;;
-    esac
-
-    #listing projects
-    if [[ "$command" == "list" ]]; then
-        ls -t $workspace_path | column
-
+    esac 
 
     #Opening project
-    elif [[ "$command" == "open" ]]; then
+    if [[ "$command" == "open" ]]; then
         target="$workspace_path/$name"
         if _check_dir "$target"; then
             code $target
