@@ -47,61 +47,69 @@ _get_msg() {
     local key=$1
     local param=$2
     local cmd_type=$3
-    local lang="${LANG:0:2}"
+    local lang="${LANG%_*}"
+    [ -z "$lang" ] && lang="en"
+    
+    local message=""
     
     # Turkish messages
-    declare -A messages_tr=(
-        ["err_name_missing"]="Hata: Proje ismi eksik. Kullanım: project $cmd_type <isim>"
-        ["err_exists"]="Hata: '$param' isimli bir proje zaten mevcut!"
-        ["err_not_exists"]="Hata: '$param' isimli bir proje bulunamadı!"
-        ["err_base_dir_not_exists"]="Hata: Proje klasörü bulunamadı!"
-        ["err_invalid_param"]="Hata: Geçersiz parametre: $param"
-        ["err_invalid_command"]="Hata: Geçersiz komut: $cmd_type"
-        ["err_code_editor_not_found"]="Hata: '$param' editörü sistemde bulunamadı"
-        ["err_template_missing"]="Hata: Şablon tipi belirtilmedi. Kullanım: project new <isim> -t <tip>"
-        ["err_project_not_empty"]="Hata: Proje boş değil!"
-        ["err_program_not_exists"]="Hata: $param sistemde yüklü değil!"
-        ["confirm_rm"]="'$param' projesini silmek istediğinize emin misiniz? (y/n): "
-        ["cancel_rm"]="'$param' projesi silinmedi"
-        ["success_rm"]="'$param' projesi başarıyla silindi."
-        ["success_new"]="'$param' projesi başarıyla oluşturuldu."
-        ["success_rename"]="Proje ismi başarıyla değiştirildi."
-    )
-    
-    # English messages (default)
-    declare -A messages_en=(
-        ["err_name_missing"]="Error: Project name is missing. Usage: project $cmd_type <name>"
-        ["err_exists"]="Error: Project '$param' already exists!"
-        ["err_not_exists"]="Error: Project '$param' not found!"
-        ["err_base_dir_not_exists"]="Error: Project directory not found!"
-        ["err_invalid_param"]="Error: Invalid parameter: $param"
-        ["err_invalid_command"]="Error: Invalid command: $cmd_type"
-        ["err_code_editor_not_found"]="Error: '$param' editor not found in the system"
-        ["err_template_missing"]="Error: Template type not specified. Usage: project new <name> -t <type>"
-        ["err_project_not_empty"]="Error: Project is not empty!"
-        ["err_program_not_exists"]="Error: $param is not installed on the system!"
-        ["confirm_rm"]="Are you sure you want to remove the project '$param'? (y/n): "
-        ["cancel_rm"]="Project '$param' was not removed"
-        ["success_rm"]="Project '$param' successfully removed."
-        ["success_new"]="Project '$param' created successfully."
-        ["success_rename"]="Project name successfully changed."
-    )
-
-    local message=""
-    if [[ "$lang" == "tr" ]]; then
-        message="${messages_tr[$key]}"
+    if [ "$lang" = "tr" ]; then
+        case "$key" in
+            err_name_missing) message="Hata: Proje ismi eksik. Kullanım: project $cmd_type <isim>" ;;
+            err_exists) message="Hata: '$param' isimli bir proje zaten mevcut!" ;;
+            err_not_exists) message="Hata: '$param' isimli bir proje bulunamadı!" ;;
+            err_base_dir_not_exists) message="Hata: Proje klasörü bulunamadı!" ;;
+            err_invalid_param) message="Hata: Geçersiz parametre: $param" ;;
+            err_invalid_command) message="Hata: Geçersiz komut: $cmd_type" ;;
+            err_code_editor_not_found) message="Hata: '$param' editörü sistemde bulunamadı" ;;
+            err_template_missing) message="Hata: Şablon tipi belirtilmedi. Kullanım: project new <isim> -t <tip>" ;;
+            err_project_not_empty) message="Hata: Proje boş değil!" ;;
+            err_program_not_exists) message="Hata: $param sistemde yüklü değil!" ;;
+            confirm_rm) message="'$param' projesini silmek istediğinize emin misiniz? (y/n): " ;;
+            cancel_rm) message="'$param' projesi silinmedi" ;;
+            success_rm) message="'$param' projesi başarıyla silindi." ;;
+            success_new) message="'$param' projesi başarıyla oluşturuldu." ;;
+            success_rename) message="Proje ismi başarıyla değiştirildi." ;;
+        esac
     else
-        message="${messages_en[$key]}"
+        # English messages (default)
+        case "$key" in
+            err_name_missing) message="Error: Project name is missing. Usage: project $cmd_type <name>" ;;
+            err_exists) message="Error: Project '$param' already exists!" ;;
+            err_not_exists) message="Error: Project '$param' not found!" ;;
+            err_base_dir_not_exists) message="Error: Project directory not found!" ;;
+            err_invalid_param) message="Error: Invalid parameter: $param" ;;
+            err_invalid_command) message="Error: Invalid command: $cmd_type" ;;
+            err_code_editor_not_found) message="Error: '$param' editor not found in the system" ;;
+            err_template_missing) message="Error: Template type not specified. Usage: project new <name> -t <type>" ;;
+            err_project_not_empty) message="Error: Project is not empty!" ;;
+            err_program_not_exists) message="Error: $param is not installed on the system!" ;;
+            confirm_rm) message="Are you sure you want to remove the project '$param'? (y/n): " ;;
+            cancel_rm) message="Project '$param' was not removed" ;;
+            success_rm) message="Project '$param' successfully removed." ;;
+            success_new) message="Project '$param' created successfully." ;;
+            success_rename) message="Project name successfully changed." ;;
+        esac
     fi
 
-    if [[ -n "$message" ]]; then
-        if [[ "$key" == "confirm_rm" ]]; then
+    # Output message
+    if [ -n "$message" ]; then
+        if [ "$key" = "confirm_rm" ]; then
             printf "%s" "$message"
         else
             echo "$message"
         fi
     else
-        [[ "$lang" == "tr" ]] && echo "Bilinmeyen mesaj anahtarı: $key" || echo "Unknown message key: $key"
+        case "$lang" in
+            tr)
+                echo "Bilinmeyen mesaj anahtarı: $key" >&2
+            ;;
+            *)
+                echo "Unknown message key: $key" >&2
+            ;;
+        esac
+        
+        return 1
     fi
 }
 
