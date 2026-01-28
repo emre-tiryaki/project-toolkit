@@ -177,7 +177,7 @@ _create_template(){
                 return 1
             fi
 
-            npm init -y
+            npm init -y >/dev/null 2>&1
         ;;
         typescript|ts|npx)
             if ! _check_program_existence "npm"; then
@@ -190,9 +190,9 @@ _create_template(){
                 return 1
             fi
 
-            npm init -y
+            npm init -y >/dev/null 2>&1
 
-            tsc --init
+            tsc --init >/dev/null 2>&1
 
             _get_msg "warning_downloading_neccecity" "typescript"
 
