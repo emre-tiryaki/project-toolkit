@@ -1,3 +1,13 @@
+'
+    This is a personal project for managing projects folder.
+
+    > it should give messages in multiple languages
+    > should be used in both bash and shell
+    > should do most of the boilerplate work of creating and managing projects
+
+    Project is mainly for people that likes to keep their projects organized.
+'
+
 #GLOBAL VARIABLES FOR HIS PROJECT
 if [[ -z "${PROJECT_WORKSPACE}" ]]; then
     readonly PROJECT_WORKSPACE="${HOME}/workspace"
@@ -258,9 +268,9 @@ _cmd_new() {
     if [[ $create_template == true ]]; then
         if [[ -z "$template_type" ]]; then
             _get_msg "err_template_missing" "" "new"
+        else
+            _create_template "$project_name" "$template_type"
         fi
-
-        _create_template "$project_name" "$template_type"
     fi  
 
     if [[ $open_editor == true ]]; then
@@ -293,7 +303,7 @@ _cmd_rm() {
     done
 
     if [[ -z "$project_name" ]]; then
-        _get_msg "err_name_missing" "$project_name"
+        _get_msg "err_name_missing" "" "rm"
         return 1
     fi
 
@@ -345,7 +355,7 @@ _cmd_open() {
     done
 
     if [[ -z "$project_name" ]]; then
-        _get_msg "err_name_missing" "$project_name"
+        _get_msg "err_name_missing" "" "open"
         return 1
     fi
 
