@@ -65,6 +65,7 @@ _get_msg() {
             err_template_missing) message="Hata: Şablon tipi belirtilmedi. Kullanım: project new <isim> -t <tip>" ;;
             err_project_not_empty) message="Hata: Proje boş değil!" ;;
             err_program_not_exists) message="Hata: $param sistemde yüklü değil!" ;;
+            warning_downloading_neccecity) message="Uyarı: Gerekli $param paketleri/bağımlılıkları sessizce yükleniyor..." ;;
             confirm_rm) message="'$param' projesini silmek istediğinize emin misiniz? (y/n): " ;;
             cancel_rm) message="'$param' projesi silinmedi" ;;
             success_rm) message="'$param' projesi başarıyla silindi." ;;
@@ -84,6 +85,7 @@ _get_msg() {
             err_template_missing) message="Error: Template type not specified. Usage: project new <name> -t <type>" ;;
             err_project_not_empty) message="Error: Project is not empty!" ;;
             err_program_not_exists) message="Error: $param is not installed on the system!" ;;
+            warning_downloading_neccecity) message="Warning: Required $param packages/dependencies are being installed silently..." ;;
             confirm_rm) message="Are you sure you want to remove the project '$param'? (y/n): " ;;
             cancel_rm) message="Project '$param' was not removed" ;;
             success_rm) message="Project '$param' successfully removed." ;;
@@ -92,7 +94,6 @@ _get_msg() {
         esac
     fi
 
-    # Output message
     if [ -n "$message" ]; then
         if [ "$key" = "confirm_rm" ]; then
             printf "%s" "$message"
@@ -150,23 +151,42 @@ _create_template(){
         return 1
     fi
 
-    case "$template_type" in
-        node|javascript|js)
-            template_type="npm"
-        ;;
-    esac
-
-    if ! _check_program_existence "$template_type"; then
-        _get_msg "err_program_not_exists" "$template_type"
-        return 1
-    fi
 
     case "$template_type" in
         go)
+            if ! _check_program_existence "go"; then
+                _get_msg "err_program_not_exists" "go"
+                return 1
+            fi
+
             go mod init "$project_name"
         ;;
-        npm)
+        npm|node|js|javascript)
+            if ! _check_program_existence "npm"; then
+                _get_msg "err_program_not_exists" "npm"
+                return 1
+            fi
+
             npm init -y
+        ;;
+        typescript|ts|npx)
+            if ! _check_program_existence "npm"; then
+                _get_msg "err_program_not_exists" "npm"
+                return 1
+            fi
+
+            if ! _check_program_existence "tsc"; then
+                _get_msg "err_program_not_exists" "tsc"
+                return 1
+            fi
+
+            npm init -y
+
+            tsc --init
+
+            _get_msg "warning_downloading_neccecity" "typescript"
+
+            npm install -D typescript ts-node @types/node >/dev/null 2>&1
         ;;
         *)
             _get_msg "err_invalid_param" "$template_type"
@@ -238,7 +258,6 @@ _cmd_new() {
     if [[ $create_template == true ]]; then
         if [[ -z "$template_type" ]]; then
             _get_msg "err_template_missing" "" "new"
-            return 1
         fi
 
         _create_template "$project_name" "$template_type"
