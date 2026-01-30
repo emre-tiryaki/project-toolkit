@@ -1,12 +1,16 @@
-'
-    This is a personal project for managing projects folder.
+# /home/tiryaki/.project-toolkit/project-toolkit.sh içindeki hatalı kısmı şu hale getir:
 
-    > it should give messages in multiple languages
-    > should be used in both bash and shell
-    > should do most of the boilerplate work of creating and managing projects
+#!/bin/zsh
 
-    Project is mainly for people that likes to keep their projects organized.
-'
+# This is a personal project for managing projects folder.
+#
+# > it should give messages in multiple languages
+# > should be used in both bash and shell
+# > should do most of the boilerplate work of creating and managing projects
+#
+# Project is mainly for people that likes to keep their projects organized.
+
+# Geri kalan kodların...
 
 #GLOBAL VARIABLES FOR HIS PROJECT
 if [[ -z "${PROJECT_WORKSPACE}" ]]; then
