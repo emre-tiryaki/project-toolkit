@@ -88,6 +88,7 @@ _get_msg() {
             err_program_not_exists) message="Hata: $param sistemde yüklü değil!" ;;
             warning_downloading_neccecity) message="Uyarı: Gerekli $param paketleri/bağımlılıkları sessizce yükleniyor..." ;;
             info_select_project) message="Proje seç >>";;
+            info_list_project) message="Proje listesi >>";;
             confirm_rm) message="'$param' projesini silmek istediğinize emin misiniz? (y/n): " ;;
             cancel_rm) message="'$param' projesi silinmedi" ;;
             success_rm) message="'$param' projesi başarıyla silindi." ;;
@@ -109,6 +110,7 @@ _get_msg() {
             err_program_not_exists) message="Error: $param is not installed on the system!" ;;
             warning_downloading_neccecity) message="Warning: Required $param packages/dependencies are being installed silently..." ;;
             info_select_project) message="Select Project >>";;
+            info_list_project) message="Project List >>";;
             confirm_rm) message="Are you sure you want to remove the project '$param'? (y/n): " ;;
             cancel_rm) message="Project '$param' was not removed" ;;
             success_rm) message="Project '$param' successfully removed." ;;
@@ -340,7 +342,12 @@ _cmd_rm() {
 
 #listing projects command
 _cmd_list() {
-    ls -t "$PROJECT_WORKSPACE" | column
+    local project_name=""
+    project_name=$(ls -t "$PROJECT_WORKSPACE" | fzf --height=40% --layout=reverse --border --prompt="$(_get_msg "info_select_project")")
+
+    if ! [[ -z "$project_name" ]]; then
+        _open_editor "$PROJECT_WORKSPACE/$project_name"
+    fi
 }
 
 #open project command
