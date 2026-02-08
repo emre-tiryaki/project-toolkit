@@ -1,5 +1,3 @@
-# /home/tiryaki/.project-toolkit/project-toolkit.sh içindeki hatalı kısmı şu hale getir:
-
 #!/bin/zsh
 
 # This is a personal project for managing projects folder.
@@ -12,25 +10,36 @@
 
 # Geri kalan kodların...
 
-#GLOBAL VARIABLES FOR HIS PROJECT
+#GLOBAL VARIABLES AND UTIL FUNCTIONS FOR THIS PROJECT
 if [[ -z "${PROJECT_WORKSPACE}" ]]; then
     readonly PROJECT_WORKSPACE="${HOME}/workspace"
 fi
 
+#for checking if a program/command exists in the system
+_check_program_existence(){
+    local program=$1
+    
+    if command -v "$program" >/dev/null 2>&1; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 # For getting the system default code editor
 _get_editor() {
-    if [[ -n "$VISUAL" ]] && command -v "$VISUAL" &> /dev/null; then
+    if [[ -n "$VISUAL" ]] && _check_program_existence "$VISUAL"; then
         echo "$VISUAL"
         return
     fi
     
-    if [[ -n "$EDITOR" ]] && command -v "$EDITOR" &> /dev/null; then
+    if [[ -n "$EDITOR" ]] && _check_program_existence "$EDITOR"; then
         echo "$EDITOR"
         return
     fi
     
     for editor in code vim nvim nano gedit vi; do
-        if command -v "$editor" &> /dev/null; then
+        if _check_program_existence "$editor"; then
             echo "$editor"
             return
         fi
@@ -42,8 +51,6 @@ _get_editor() {
 if [[ -z "${EDITOR_CMD}" ]]; then
     readonly EDITOR_CMD=$(_get_editor)
 fi
-
-#UTIL FUNCTIONS
 
 #for checking if a directory exists
 _check_dir(){
@@ -132,7 +139,7 @@ _get_msg() {
 _open_editor(){
     local target_dir="${1:-.}"
 
-    if ! command -v "$EDITOR_CMD" >/dev/null 2>&1; then
+    if ! _check_program_existence "$EDITOR_CMD"; then
         _get_msg "err_code_editor_not_found" "$EDITOR_CMD"
         return 1
     fi
@@ -147,12 +154,6 @@ _open_editor(){
     esac
 }
 
-#for checking if a program/command exists in the system
-_check_program_existence(){
-    local program=$1
-    
-    command -v "$program" &> /dev/null
-}
 
 #for creating language specific templates
 #TODO: will implement writing boilerplate code in the future
@@ -164,7 +165,6 @@ _create_template(){
         _get_msg "err_project_not_empty"
         return 1
     fi
-
 
     case "$template_type" in
         go)
@@ -487,6 +487,9 @@ project() {
         ;;
         rename)
             _cmd_rename $1 $2
+        ;;
+        template)
+            _cmd_template $1
         ;;
         help)
             _cmd_help
