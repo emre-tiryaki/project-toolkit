@@ -87,6 +87,7 @@ _get_msg() {
             err_project_not_empty) message="Hata: Proje boş değil!" ;;
             err_program_not_exists) message="Hata: $param sistemde yüklü değil!" ;;
             warning_downloading_neccecity) message="Uyarı: Gerekli $param paketleri/bağımlılıkları sessizce yükleniyor..." ;;
+            info_select_project) message="Proje seç >>";;
             confirm_rm) message="'$param' projesini silmek istediğinize emin misiniz? (y/n): " ;;
             cancel_rm) message="'$param' projesi silinmedi" ;;
             success_rm) message="'$param' projesi başarıyla silindi." ;;
@@ -107,6 +108,7 @@ _get_msg() {
             err_project_not_empty) message="Error: Project is not empty!" ;;
             err_program_not_exists) message="Error: $param is not installed on the system!" ;;
             warning_downloading_neccecity) message="Warning: Required $param packages/dependencies are being installed silently..." ;;
+            info_select_project) message="Select Project >>";;
             confirm_rm) message="Are you sure you want to remove the project '$param'? (y/n): " ;;
             cancel_rm) message="Project '$param' was not removed" ;;
             success_rm) message="Project '$param' successfully removed." ;;
@@ -359,8 +361,16 @@ _cmd_open() {
     done
 
     if [[ -z "$project_name" ]]; then
-        _get_msg "err_name_missing" "" "open"
-        return 1
+        if ! _check_program_existence "fzf"; then
+            _get_msg "err_program_not_exists" "fzf"
+            return 1
+        fi
+
+        project_name=$(ls -1 "$PROJECT_WORKSPACE" | fzf --height=40% --layout=reverse --border --prompt="$(_get_msg "info_select_project")")
+
+        if [[ -z "$project_name" ]]; then
+            return 0
+        fi
     fi
 
     local target="$PROJECT_WORKSPACE/$project_name"
