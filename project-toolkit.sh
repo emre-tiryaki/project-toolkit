@@ -342,12 +342,17 @@ _cmd_rm() {
 
 #listing projects command
 _cmd_list() {
-    local project_name=""
-    project_name=$(ls -t "$PROJECT_WORKSPACE" | fzf --height=40% --layout=reverse --border --prompt="$(_get_msg "info_select_project")")
+    if _check_program_existence "fzf"; then
+        local project_name=""
+        project_name=$(ls -t "$PROJECT_WORKSPACE" | fzf --height=40% --layout=reverse --border --prompt="$(_get_msg "info_select_project")")
 
-    if ! [[ -z "$project_name" ]]; then
-        _open_editor "$PROJECT_WORKSPACE/$project_name"
+        if ! [[ -z "$project_name" ]]; then
+            _open_editor "$PROJECT_WORKSPACE/$project_name"
+        fi
+    else
+        ls -t "$PROJECT_WORKSPACE" | column
     fi
+
 }
 
 #open project command
@@ -460,6 +465,7 @@ _cmd_help() {
     echo "    Options:"
     echo "      -g, --git      Initialize a git repository"
     echo "      -e, --editor   Open the project in your default editor"
+    echo "      -t, --template Create a simple template for some programming languages(go, typescript, ts, javascript, js)"
     echo ""
     echo "  project rm <name> [OPTIONS]"
     echo "    Remove an existing project"
@@ -468,6 +474,7 @@ _cmd_help() {
     echo ""
     echo "  project open <name>"
     echo "    Open an existing project in your default editor"
+    echo "    If fzf is not downloaded in your system you should give a valid name."
     echo ""
     echo "  project find <name>"
     echo "    Search for projects by name (partial match supported)"
