@@ -269,10 +269,6 @@ _cmd_new() {
     mkdir -p "$target"
     cd "$target"
 
-    if [[ $init_git == true ]]; then
-        git init --initial-branch=main
-    fi
-
     if [[ $create_template == true ]]; then
         if [[ -z "$template_type" ]]; then
             _get_msg "err_template_missing" "" "new"
@@ -280,6 +276,10 @@ _cmd_new() {
             _create_template "$project_name" "$template_type"
         fi
     fi  
+
+    if [[ $init_git == true ]]; then
+        git init --initial-branch=main
+    fi
 
     if [[ $open_editor == true ]]; then
         _open_editor
@@ -511,9 +511,6 @@ project() {
         ;;
         rename)
             _cmd_rename $1 $2
-        ;;
-        template)
-            _cmd_template $1
         ;;
         help)
             _cmd_help
