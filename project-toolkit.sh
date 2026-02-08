@@ -412,8 +412,17 @@ _cmd_find() {
             ;;
         esac
     done
-    
-    find "$PROJECT_WORKSPACE" -maxdepth 1 -type d -iname "*$search_term*" -printf "%f\n" | column
+
+    if _check_program_existence "fzf"; then
+        local project_name=""
+        project_name=$(find "$PROJECT_WORKSPACE" -maxdepth 1 -type d -iname "*$search_term*" -printf "%f\n" | fzf --height=40% --layout=reverse --border --prompt="$(_get_msg "info_select_project")")
+
+        if ! [[ -z "$project_name" ]]; then
+            _open_editor "$PROJECT_WORKSPACE/$project_name"
+        fi
+    else
+        find "$PROJECT_WORKSPACE" -maxdepth 1 -type d -iname "*$search_term*" -printf "%f\n" | column
+    fi
 }
 
 _cmd_rename() {
