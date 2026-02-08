@@ -24,23 +24,23 @@ Clone the tool to a location on your machine (e.g., your home directory):
 ```bash
 git clone https://github.com/emre-tiryaki/project-toolkit.git ~/.project-toolkit
 
-### 2. Configure Your Shell
 ```
+### 2. Configure Your Shell
 
 You need to load the script when your terminal starts. Add the source command to your configuration file.
 
 #### For Bash Users
 
-```bash
 Run the following commands:
 
+```bash
 echo 'source "$HOME/.project-toolkit/project-toolkit.sh"' >> ~/.bashrc
 source ~/.bashrc
+
 ```
 
 #### For Zsh Users
 
-```bash
 Run the following commands:
 
 ```bash
