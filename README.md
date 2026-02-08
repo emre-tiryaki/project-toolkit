@@ -66,7 +66,8 @@ export VISUAL="code" # or "nvim", "subl", etc.
 
 ```
 
-
+## Dependencies
+- **fzf**: for user interface
 
 ## Usage
 
