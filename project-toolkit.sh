@@ -206,6 +206,14 @@ _create_template(){
 
             npm install -D typescript ts-node @types/node >/dev/null 2>&1
         ;;
+        rust)
+            if ! _check_program_existence "cargo"; then
+                _get_msg "err_program_not_exists" "cargo"
+                return 1
+            fi
+
+            cargo init --bin --vcs none >/dev/null 2>&1
+        ;;
         *)
             _get_msg "err_invalid_param" "$template_type"
             return 1
