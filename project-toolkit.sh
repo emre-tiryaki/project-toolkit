@@ -324,7 +324,7 @@ _cmd_rm() {
             return 1
         fi
 
-        project_name=$(find "$PROJECT_WORKSPACE" -mindepth 1 -type d -iname "*$search_term*" -printf "%f\n" | fzf --height=40% --layout=reverse --border --prompt="$(_get_msg "info_select_project")")
+        project_name=$(find "$PROJECT_WORKSPACE" -maxdepth 1 -type d -iname "*$search_term*" -printf "%f\n" | fzf --height=40% --layout=reverse --border --prompt="$(_get_msg "info_select_project")")
 
         if [[ -z "$project_name" ]]; then
             _get_msg "err_name_missing" "" "rm"
@@ -483,7 +483,7 @@ _cmd_help() {
     echo "  project help"
     echo "    Show this help message"
     echo ""
-    echo "  project list"
+    echo "  project list | project ls"
     echo "    List all projects in the workspace"
     echo ""
     echo "  project new <name> [OPTIONS]"
