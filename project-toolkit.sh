@@ -86,6 +86,7 @@ _get_msg() {
             err_template_missing) message="Hata: Şablon tipi belirtilmedi. Kullanım: project new <isim> -t <tip>" ;;
             err_project_not_empty) message="Hata: Proje boş değil!" ;;
             err_program_not_exists) message="Hata: $param sistemde yüklü değil!" ;;
+            err_unknown_flag) message="Hata: bilinmeyen bayrak ($param)";;
             warning_downloading_neccecity) message="Uyarı: Gerekli $param paketleri/bağımlılıkları sessizce yükleniyor..." ;;
             info_select_project) message="Proje seç >>";;
             info_list_project) message="Proje listesi >>";;
@@ -108,6 +109,7 @@ _get_msg() {
             err_template_missing) message="Error: Template type not specified. Usage: project new <name> -t <type>" ;;
             err_project_not_empty) message="Error: Project is not empty!" ;;
             err_program_not_exists) message="Error: $param is not installed on the system!" ;;
+            err_unknown_flag) message="Error: Unknown flag ($param)";;
             warning_downloading_neccecity) message="Warning: Required $param packages/dependencies are being installed silently..." ;;
             info_select_project) message="Select Project >>";;
             info_list_project) message="Project List >>";;
@@ -308,7 +310,7 @@ _cmd_rm() {
                 shift
             ;;
             -*)
-                #error message
+                _get_msg "err_unknown_flag" "$1"
                 return 1
             ;;
             *)
