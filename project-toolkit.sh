@@ -8,8 +8,6 @@
 #
 # Project is mainly for people that likes to keep their projects organized.
 
-# Geri kalan kodların...
-
 #GLOBAL VARIABLES AND UTIL FUNCTIONS FOR THIS PROJECT
 if [[ -z "${PROJECT_WORKSPACE}" ]]; then
     readonly PROJECT_WORKSPACE="${HOME}/workspace"
@@ -90,14 +88,17 @@ _get_msg() {
             warning_downloading_neccecity) message="Uyarı: Gerekli $param paketleri/bağımlılıkları sessizce yükleniyor..." ;;
             info_select_project) message="Proje seç >>";;
             info_list_project) message="Proje listesi >>";;
-            confirm_rm) message="'$param' projesini silmek istediğinize emin misiniz? (y/n): " ;;
-            cancel_rm) message="'$param' projesi silinmedi" ;;
-            success_rm) message="'$param' projesi başarıyla silindi." ;;
+            info_projects_to_remove) message="Silinecek projeler >>";;
+            projects_to_remove_list) message="Silinecek projeler >>";;
+            prompt_select_projects_to_remove) message="Silinecekleri TAB ile seçin, ENTER ile onaylayın > ";;
+            confirm_rm) message="'projeleri silmek istediğinize emin misiniz? (y/n): " ;;
+            cancel_rm) message="'$param' silinmedi" ;;
+            success_rm) message="'$param' başarıyla silindi." ;;
             success_new) message="'$param' projesi başarıyla oluşturuldu." ;;
             success_rename) message="Proje ismi başarıyla değiştirildi." ;;
         esac
+    # English messages (default)
     else
-        # English messages (default)
         case "$key" in
             err_name_missing) message="Error: Project name is missing. Usage: project $cmd_type <name>" ;;
             err_exists) message="Error: Project '$param' already exists!" ;;
@@ -113,7 +114,10 @@ _get_msg() {
             warning_downloading_neccecity) message="Warning: Required $param packages/dependencies are being installed silently..." ;;
             info_select_project) message="Select Project >>";;
             info_list_project) message="Project List >>";;
-            confirm_rm) message="Are you sure you want to remove the project '$param'? (y/n): " ;;
+            info_projects_to_remove) message="Projects to remove >>";;
+            projects_to_remove_list) message="Projects to remove >>";;
+            prompt_select_projects_to_remove) message="Use TAB to select items, press ENTER to confirm > ";;
+            confirm_rm) message="Are you sure you want to remove the projects? (y/n): " ;;
             cancel_rm) message="Project '$param' was not removed" ;;
             success_rm) message="Project '$param' successfully removed." ;;
             success_new) message="Project '$param' created successfully." ;;
@@ -122,7 +126,7 @@ _get_msg() {
     fi
 
     if [ -n "$message" ]; then
-        if [ "$key" = "confirm_rm" ]; then
+        if [ "$key" = "confirm_rm" ] || [ "$key" = "prompt_select_projects_to_remove" ]; then
             printf "%s" "$message"
         else
             echo "$message"
@@ -300,7 +304,7 @@ _cmd_new() {
 
 #Remove Project Command
 _cmd_rm() {
-    local project_name=""
+    local projects_to_remove=()
     local force=false
 
     while [[ $# -gt 0 ]]; do
@@ -314,49 +318,60 @@ _cmd_rm() {
                 return 1
             ;;
             *)
-                project_name="$1"
+                projects_to_remove+=("$1")
                 shift
             ;;
         esac
     done
 
-    if [[ -z "$project_name" ]]; then
+    if [[ ${#projects_to_remove[@]} -eq 0 ]]; then
         if ! _check_program_existence "fzf"; then
-            _get_msg "err_name_missing" "" "rm"
+            _get_msg "err_program_not_exists" "fzf"
             return 1
         fi
 
-        project_name=$(find "$PROJECT_WORKSPACE" -maxdepth 1 -type d -iname "*$search_term*" -printf "%f\n" | fzf --height=40% --layout=reverse --border --prompt="$(_get_msg "info_select_project")")
+        local selected_projects=""
+        selected_projects=$(find "$PROJECT_WORKSPACE" -maxdepth 1 -mindepth 1 -type d -printf "%f\n" 2>/dev/null | fzf -m --height=40% --layout=reverse --border --prompt="$(_get_msg "prompt_select_projects_to_remove")")
 
-        if [[ -z "$project_name" ]]; then
-            _get_msg "err_name_missing" "" "rm"
-            return 1
+        if [[ -z "$selected_projects" ]]; then
+            return 0
+        fi
+
+        while IFS= read -r line; do
+            [[ -n "${line// /}" ]] && projects_to_remove+=("$line")
+        done <<< "$selected_projects"
+
+        if [[ ${#projects_to_remove[@]} -eq 0 ]]; then
+            return 0
         fi
     fi
 
-    local target="$PROJECT_WORKSPACE/$project_name"
+    if [[ $force == false ]]; then
+        _get_msg "info_projects_to_remove"
 
-    if _check_dir "$target"; then
+        for proj in "${projects_to_remove[@]}"; do
+            echo " - $proj"
+        done
+
+        _get_msg "confirm_rm"
+        read confirm
+
+        if [[ "$confirm" == "n" || "$confirm" == "N" ]]; then
+            _get_msg "cancel_rm" "$project_name"
+            return 0
+        fi
+    fi
         
-        if [[ $force == false ]]; then
-            _get_msg "confirm_rm" "$project_name"
-            read confirm
+    for proj in "${projects_to_remove[@]}"; do
+        local target="$PROJECT_WORKSPACE/$proj"
 
-            if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
-                rm -rf "$target"
-            else
-                _get_msg "cancel_rm" "$project_name"
-                return 0
-            fi
-        else
+        if _check_dir "$target"; then
             rm -rf "$target"
+            _get_msg "success_rm" "$proj"
+        else
+            _get_msg "err_not_exists" "$proj"
         fi
-
-        _get_msg "success_rm" "$project_name"
-    else
-        _get_msg "err_not_exists" "$project_name"
-        return 1
-    fi
+    done
 }
 
 #listing projects command
