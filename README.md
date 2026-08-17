@@ -1,171 +1,117 @@
 # Project Toolkit
 
-**Project Toolkit** is a lightweight, automated shell utility designed to streamline your development workflow on Linux. It simplifies creating, managing, navigating, and organizing your coding projects directly from the terminal.
+**Project Toolkit** is a lightweight, cross-platform CLI for managing your coding
+projects. It creates, scaffolds, navigates, clones, and organizes projects from
+the terminal. Written in Go (with a thin shell wrapper for directory changes) so
+it works the same on Linux and macOS.
 
-Built for efficiency, it handles directory structures, Git initialization, and editor launching with simple, intuitive commands.
+> Want the old pure-shell version? It's preserved in git history
+> (`project-toolkit.sh` before the Go rewrite). The current version keeps a
+> `project-toolkit.sh`, but it is now just a thin `cd` wrapper around the Go binary.
 
 ## Features
 
-* **Smart Workspace Management:** Automatically manages a dedicated workspace directory (`~/workspace` by default).
-* **Intelligent Editor Detection:** Automatically detects your system's default editor (VS Code, Vim, Neovim, Nano, etc.) via `$VISUAL` or `$EDITOR` environment variables.
-* **Git Integration:** Initialize a new Git repository (`main` branch) instantly upon project creation.
-* **Safety First:** Includes confirmation prompts for deletion to prevent accidents, with a "force" mode for power users.
-* **Fuzzy Search:** Quickly find projects even if you don't remember the exact name.
-* **Cross-Shell Support:** Fully compatible with both **Bash** and **Zsh**.
-* **Bilingual Support:** Automatically adapts error messages and prompts based on your system language (English/Turkish).
+- **Workspace management** — a single directory (`~/workspace` by default) for all projects.
+- **Boilerplate templates** — real project skeletons for Go, Node, TypeScript, Rust, Python
+  (extensible: add your own under `~/.config/project-toolkit/templates/`).
+- **Git integration** — init a repo on creation, or clone one directly.
+- **GitHub clone** — `project clone` lists *your* GitHub repos (via fzf) when run with no
+  argument; pass a URL to clone directly, or any text to search GitHub.
+- **Smart editor detection** — opens your `$VISUAL`/`$EDITOR` (or a sensible default).
+- **Fuzzy selection** — `open`/`list`/`find`/`rm` use `fzf` when available; fall back to plain
+  lists when there is no TTY.
+- **Safety** — `rm` confirms before deleting (unless `-f`).
+- **Bilingual** — messages adapt to your system locale (Turkish / English).
 
-## Installation
+## Install
 
-Since `project-toolkit` runs as a shell function to manage your current session (like changing directories), it must be `sourced` in your shell configuration.
+### Option A — `go install`
 
-### 1. Clone the Repository
-Clone the tool to a location on your machine (e.g., your home directory):
+```bash
+go install github.com/emre-tiryaki/project-toolkit@latest
+```
+
+Make sure `$GOPATH/bin` (usually `~/go/bin`) is on your `PATH`.
+
+### Option B — build from source
 
 ```bash
 git clone https://github.com/emre-tiryaki/project-toolkit.git ~/.project-toolkit
-
+cd ~/.project-toolkit
+go build -o ~/.project-toolkit/project-toolkit .
 ```
-### 2. Configure Your Shell
 
-You need to load the script when your terminal starts. Add the source command to your configuration file.
+### Load the shell wrapper
 
-#### For Bash Users
-
-Run the following commands:
+The `cd` behaviour requires sourcing the wrapper (a subprocess can't change your shell's
+directory). Add to your `~/.bashrc` or `~/.zshrc`:
 
 ```bash
-echo 'source "$HOME/.project-toolkit/project-toolkit.sh"' >> ~/.bashrc
-source ~/.bashrc
-
+source "$HOME/.project-toolkit/project-toolkit.sh"
 ```
 
-#### For Zsh Users
+Then restart your shell or run `source ~/.bashrc`.
 
-Run the following commands:
+## Configuration
 
-```bash
-echo 'source "$HOME/.project-toolkit/project-toolkit.sh"' >> ~/.zshrc
-source ~/.zshrc
+Set these **before** sourcing the wrapper:
 
-```
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `PROJECT_WORKSPACE` | `~/workspace` | Where projects live |
+| `PROJECT_TEMPLATES_DIR` | `~/.config/project-toolkit/templates` | Your custom templates |
+| `GITHUB_USER` | — | GitHub username for `project clone` (no-arg) |
+| `GITHUB_TOKEN` | — | Token for higher GitHub API rate limits |
+| `VISUAL` / `EDITOR` | auto | Editor to open projects in |
 
-## Configuration (Optional)
-
-You can customize the behavior of Project Toolkit by setting environment variables in your `.bashrc` or `.zshrc` file **before** sourcing the script.
-
-* **Custom Workspace Location:**
-```bash
-export PROJECT_WORKSPACE="$HOME/Development/MyProjects"
-
-```
-
-
-* **Force Specific Editor:**
-```bash
-export VISUAL="code" # or "nvim", "subl", etc.
-
-```
-
-## Dependencies
-- **fzf**: for user interface
+Tip: set `git config github.user <you>` instead of `GITHUB_USER`.
 
 ## Usage
 
-Once installed, use the `project` command to interact with the toolkit.
-
-### Create a New Project
-
-Creates a directory in your workspace.
-
-```bash
-project new <project-name>
-
+```
+project help                          Show help
+project new <name> [opts]             Create a project
+project open <name>                   Open a project (fzf if no name)
+project list | ls                     List projects (fzf to open)
+project find <term>                   Search projects by name
+project rename <old> <new>            Rename a project
+project rm <name> [-f]                Remove project(s)
+project clone [search|url]            Clone a GitHub repo
 ```
 
-**Options:**
-
-* `-g` or `--git`: Initialize a Git repository immediately.
-* `-e` or `--editor`: Open the project in your default editor immediately.
-
-**Example:**
-
-```bash
-project new my-app -g -e
+### `project new` options
 
 ```
-
-### Open an Existing Project
-
-Navigates to the project directory and opens it in your configured editor.
-
-```bash
-project open <project-name>
-
+-g, --git          Initialize a git repository
+-e, --editor       Open the project in your editor
+-t, --template T   Scaffold with a template: go node npm js javascript ts typescript rust python py
+-c, --clone URL    Clone a repository into the new project
 ```
 
-### List Projects
-
-Displays all projects currently in your workspace, sorted by modification time.
+### Examples
 
 ```bash
-project list
-
+project new my-api -t go -g -e          # Go project, git init, open editor
+project new web -t ts                   # TypeScript project
+project new old -c https://github.com/user/repo.git   # clone into "old"
+project clone                           # fzf list of YOUR GitHub repos -> clone
+project clone vim                       # search GitHub for "vim" -> pick -> clone
+project rename my-api my-service
+project rm old -f
 ```
 
-### Find a Project
+## Custom templates
 
-Search for a project by a partial name match.
+Drop a folder under `~/.config/project-toolkit/templates/<name>/` containing any files.
+Use `{{PROJECT_NAME}}` inside files and it will be replaced with the project name.
+Reference it with `project new <name> -t <your-template-name>`.
 
-```bash
-project find <search-term>
+## Dependencies
 
-```
-
-### Rename a Project
-
-Safely renames a project directory.
-
-```bash
-project rename <old-name> <new-name>
-
-```
-
-### Remove a Project
-
-Deletes a project directory.
-
-```bash
-project rm <project-name>
-
-```
-
-**Options:**
-
-* `-f` or `--force`: Skip the confirmation prompt (Use with caution).
-
-## Roadmap
-
-We are constantly working to improve Project Toolkit. Here are some features planned for future releases:
-
-* [ ] **Project Templates:** Automatically scaffold projects for specific languages (Python, Node.js, Go, etc.).
-* [ ] **Archive Mode:** Compress and archive old projects to save space without deleting them.
-* [ ] **Project Statistics:** View disk usage and file counts for your workspace.
-* [ ] **Self-Updater:** Easy command to pull the latest version of the toolkit.
-* [ ] **Interactive Selection:** A TUI menu to select projects from a list when opening.
-
-## Contributing
-
-Contributions are welcome! If you'd like to improve this tool, please follow these steps:
-
-1. **Fork the repository** on GitHub.
-2. **Clone your fork** locally.
-3. **Create a new branch** for your feature or bug fix (`git checkout -b feature/amazing-feature`).
-4. **Commit your changes** following clean coding practices.
-5. **Push to the branch** (`git push origin feature/amazing-feature`).
-6. **Open a Pull Request**.
-
-Please ensure your code is clean, commented, and compatible with both Bash and Zsh.
+- **Go 1.24+** to build.
+- **fzf** (optional) for interactive selection.
+- **git** for clone / init.
 
 ## License
 
-This project is open-source and available under the [MIT License](https://www.google.com/search?q=LICENSE).
+MIT — see [LICENSE](LICENSE).

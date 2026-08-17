@@ -1,0 +1,6 @@
+# Build artifacts
+/project-toolkit
+*.exe
+
+# Go
+*.test
