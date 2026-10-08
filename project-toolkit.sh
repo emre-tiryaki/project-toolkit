@@ -36,7 +36,7 @@ _get_editor() {
         return
     fi
     
-    for editor in code vim nvim nano gedit vi; do
+    for editor in code codium vim nvim nano gedit vi; do
         if _check_program_existence "$editor"; then
             echo "$editor"
             return
@@ -166,7 +166,6 @@ _open_editor(){
 
 
 #for creating language specific templates
-#TODO: will implement writing boilerplate code in the future
 _create_template(){
     local project_name=$1
     local template_type=$2
