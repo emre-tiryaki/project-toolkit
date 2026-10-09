@@ -2,6 +2,7 @@
 
 # GLOBAL VARIABLES AND UTIL FUNCTIONS FOR THIS PROJECT
 : "${PROJECT_WORKSPACE:="${HOME}/workspace"}"
+: "${EDITOR_CMD:=$(_get_editor)}"
 
 _check_program_existence() {
     local program="$1"
@@ -28,8 +29,6 @@ _get_editor() {
     
     echo "vi"
 }
-
-: "${EDITOR_CMD:=$(_get_editor)}"
 
 _check_dir() {
     local target_dir="$1"
@@ -389,5 +388,12 @@ project() {
     esac
 }
 
-# Entrypoint kontrolü
-project "$@"
+_project_main() {
+    project "$@"
+}
+
+if [[ "${ZSH_EVAL_CONTEXT:-}" =~ :file$ ]] || [[ "${BASH_SOURCE[0]}" != "$0" ]]; then
+    :
+else
+    _project_main "$@"
+fi
